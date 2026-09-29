@@ -1,0 +1,7 @@
+[build]
+  functions = "netlify/functions"
+
+[[redirects]]
+  from = "/webhook/devi"
+  to = "/.netlify/functions/devi-webhook"
+  status = 200

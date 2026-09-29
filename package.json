@@ -1,0 +1,17 @@
+{
+  "name": "devi-webhook",
+  "version": "1.0.0",
+  "description": "Netlify function to receive Devi AI webhooks",
+  "main": "netlify/functions/devi-webhook.js",
+  "scripts": {
+    "test": "echo \"No tests specified\""
+  },
+  "keywords": [
+    "netlify",
+    "functions",
+    "webhook",
+    "devi"
+  ],
+  "author": "",
+  "license": "MIT"
+}
