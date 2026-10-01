@@ -3,5 +3,11 @@
 
 [[redirects]]
   from = "/webhook/devi"
-  to = "/.netlify/functions/devi-webhook"
+  to = "/.netlify/functions/devi-webhook-queue"
   status = 200
+
+[functions.devi-webhook-queue]
+  path = "netlify/functions/devi-webhook-queue.js"
+
+[functions.process-devi-queue]
+  path = "netlify/functions/process-devi-queue.js"
