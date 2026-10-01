@@ -53,8 +53,8 @@ exports.handler = async function (event, context) {
     // =======================================================
     // STORE IN NETLIFY BLOBS QUEUE (INSTANT)
     // =======================================================
-    const { Blob } = require("@netlify/blobs");
-    const queueBlob = new Blob("devi-leads-queue", { siteID: process.env.SITE_ID });
+    const blobs = require("@netlify/blobs");
+    const queueBlob = new blobs.Blob("devi-leads-queue", { siteID: process.env.SITE_ID });
     
     const queueEntry = {
       id: payload.id,

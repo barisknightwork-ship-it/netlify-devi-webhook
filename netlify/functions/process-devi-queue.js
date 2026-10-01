@@ -10,8 +10,8 @@ exports.handler = async function (event, context) {
   };
 
   try {
-    const { Blob } = require("@netlify/blobs");
-    const queueBlob = new Blob("devi-leads-queue", { siteID: process.env.SITE_ID });
+    const blobs = require("@netlify/blobs");
+    const queueBlob = new blobs.Blob("devi-leads-queue", { siteID: process.env.SITE_ID });
 
     // Read current queue
     let queue = [];
