@@ -9,7 +9,6 @@ exports.handler = async function (event, context) {
     "Content-Type": "application/json"
   };
 
-
   // =========================================================
   // HANDLE CORS PREFLIGHT REQUEST
   // =========================================================
@@ -20,7 +19,6 @@ exports.handler = async function (event, context) {
       body: ""
     };
   }
-
 
   // =========================================================
   // ONLY ACCEPT POST REQUESTS
@@ -34,7 +32,7 @@ exports.handler = async function (event, context) {
   }
 
   // =========================================================
-  // PROCESS DDEVI WEBHOOK - STORE IN BLOB QUEUE
+  // PROCESS DDEVI WEBHOOK - STORE IN BLOB QUEUE VIA REST API
   // =========================================================
   try {
     const payload = JSON.parse(event.body || "{}");
@@ -51,11 +49,11 @@ exports.handler = async function (event, context) {
     }
 
     // =======================================================
-    // STORE IN NETLIFY BLOBS QUEUE (INSTANT)
+    // STORE IN NETLIFY BLOBS QUEUE VIA REST API
     // =======================================================
-    const blobs = require("@netlify/blobs");
-    const queueBlob = new blobs.Blob("devi-leads-queue", { siteID: process.env.SITE_ID });
-    
+    const siteID = process.env.SITE_ID;
+    const blobUrl = `https://api.netlify.com/api/v1/blobs/${siteID}/devi-leads-queue/entries/queue`;
+
     const queueEntry = {
       id: payload.id,
       type: payload.type,
@@ -68,8 +66,16 @@ exports.handler = async function (event, context) {
     // Read existing queue
     let queue = [];
     try {
-      const existing = await queueBlob.get("queue", { type: "json" });
-      if (existing) queue = existing;
+      const response = await fetch(`https://api.netlify.com/api/v1/blobs/${siteID}/devi-leads-queue/entries/queue`, {
+        headers: {
+          "Authorization": `Bearer ${process.env.NETLIFY_API_TOKEN}`,
+          "Content-Type": "application/json"
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        queue = data.entries || [];
+      }
     } catch (e) {
       // Queue doesn't exist yet, start fresh
     }
@@ -78,7 +84,14 @@ exports.handler = async function (event, context) {
     queue.push(queueEntry);
 
     // Save updated queue
-    await queueBlob.set("queue", queue, { type: "json" });
+    await fetch(`https://api.netlify.com/api/v1/blobs/${siteID}/devi-leads-queue/entries/queue`, {
+      method: "PUT",
+      headers: {
+        "Authorization": `Bearer ${process.env.NETLIFY_API_TOKEN}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ entries: queue })
+    });
 
     // =======================================================
     // INSTANT RESPONSE
@@ -108,5 +121,4 @@ exports.handler = async function (event, context) {
       })
     };
   }
-};// Force rebuild Fri, Oct  2, 2026  6:02:05 PM
-// Force rebuild Fri, Oct  2, 2026  6:37:32 PM
+};
