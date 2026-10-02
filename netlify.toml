@@ -11,4 +11,3 @@
 
 [functions.process-devi-queue]
   path = "netlify/functions/process-devi-queue.js"
-Cache bust Fri, Oct  2, 2026  6:00:58 PM - force rebuild
