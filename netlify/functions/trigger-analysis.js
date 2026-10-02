@@ -2,6 +2,7 @@ const { Client } = require("@notionhq/client");
 
 const NOTION_TOKEN = process.env.NOTION_TOKEN;
 const DEVI_LEADS_DB = "3eb7161c-21a6-810f-a22d-db093a6bda31";
+const LOCAL_RUNNER_URL = "https://produce-floral-unworthy.ngrok-free.dev";
 
 const notion = new Client({ auth: NOTION_TOKEN });
 
@@ -75,44 +76,29 @@ exports.handler = async function (event, context) {
     }
 
     // =======================================================
-    // TRIGGER SHOM PROCESSOR
+    // TRIGGER LOCAL RUNNER (Shom + Koom)
     // =======================================================
-    console.log("10-minute window elapsed. Triggering Shom processor...");
+    console.log("10-minute window elapsed. Triggering local runner (Shom + Koom)...");
     
-    // Call Shom processor endpoint (we'll create this as a Netlify function)
-    const shomResponse = await fetch(`${process.env.URL}/.netlify/functions/run-shom`, {
+    // Call local runner via ngrok - runs both Shom and Koom
+    const runnerResponse = await fetch(`${LOCAL_RUNNER_URL}/run-full`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ trigger: "auto", source: "scheduled" })
     });
 
-    const shomResult = await shomResponse.json();
-    console.log("Shom result:", shomResult);
-
-    // =======================================================
-    // TRIGGER KOOM PROCESSOR (after Shom completes)
-    // =======================================================
-    console.log("Triggering Koom processor...");
-    
-    const koomResponse = await fetch(`${process.env.URL}/.netlify/functions/run-koom`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ trigger: "auto", source: "scheduled" })
-    });
-
-    const koomResult = await koomResponse.json();
-    console.log("Koom result:", koomResult);
+    const runnerResult = await runnerResponse.json();
+    console.log("Local runner result:", runnerResult);
 
     return {
       statusCode: 200,
       headers: corsHeaders,
       body: JSON.stringify({
         success: true,
-        message: "Auto-analysis triggered",
+        message: "Auto-analysis triggered via local runner",
         triggered: true,
         minutesSinceLastLead: minutesSinceLastLead.toFixed(1),
-        shom: shomResult,
-        koom: koomResult
+        result: runnerResult
       })
     };
 
