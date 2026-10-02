@@ -11,3 +11,16 @@
 
 [functions.process-devi-queue]
   path = "netlify/functions/process-devi-queue.js"
+
+[functions.trigger-analysis]
+  path = "netlify/functions/trigger-analysis.js"
+
+[functions.run-shom]
+  path = "netlify/functions/run-shom.js"
+
+[functions.run-koom]
+  path = "netlify/functions/run-koom.js"
+
+[[functions]]
+  name = "trigger-analysis"
+  schedule = "*/5 * * * *"
