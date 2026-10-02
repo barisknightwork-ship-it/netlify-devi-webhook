@@ -42,9 +42,6 @@ exports.handler = async function (event, context) {
     await queueBlob.set("queue", queue, { type: "json" });
 
     // Process each entry in batch
-    const notionToken = process.env.NOTION_TOKEN;
-    const databaseId = "3eb7161c-21a6-810f-a22d-db093a6bda31";
-    
     let processed = 0;
     let errors = 0;
 
@@ -91,35 +88,35 @@ exports.handler = async function (event, context) {
               "Name": {
                 title: [{ text: { content: lead.authorName || "Unknown Author" } }]
               }
-            };
-
-            if (contentParts.length > 0) {
-              notionData.children = contentParts.map(part => ({
-                object: "block",
-                type: "paragraph",
-                paragraph: {
-                  rich_text: [{ type: "text", text: { content: part } }]
-                }
-              }));
             }
+          };
 
-            const response = await fetch("https://api.notion.com/v1/pages", {
-              method: "POST",
-              headers: {
-                "Authorization": `Bearer ${process.env.NOTION_TOKEN}`,
-                "Content-Type": "application/json",
-                "Notion-Version": "2022-06-28"
-              },
-              body: JSON.stringify(notionData)
-            });
+          if (contentParts.length > 0) {
+            notionData.children = contentParts.map(part => ({
+              object: "block",
+              type: "paragraph",
+              paragraph: {
+                rich_text: [{ type: "text", text: { content: part } }]
+              }
+            }));
+          }
 
-            if (!response.ok) {
-              const errorText = await response.text();
-              console.error("Notion API error:", response.status, errorText);
-              errors++;
-            } else {
-              processed++;
-            }
+          const response = await fetch("https://api.notion.com/v1/pages", {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${process.env.NOTION_TOKEN}`,
+              "Content-Type": "application/json",
+              "Notion-Version": "2022-06-28"
+            },
+            body: JSON.stringify(notionData)
+          });
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error("Notion API error:", response.status, errorText);
+            errors++;
+          } else {
+            processed++;
           }
         }
       } catch (error) {
